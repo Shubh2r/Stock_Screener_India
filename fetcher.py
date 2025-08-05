@@ -28,8 +28,14 @@ def get_stock_data(ticker):
 
 def calculate_rsi(series, period=14):
     delta = series.diff().dropna()
-    gain = delta[delta > 0].sum() / period
-    loss = -delta[delta < 0].sum() / period
-    if loss == 0: return 100
-    rs = gain / loss
-    return round(100 - (100 / (1 + rs)), 2)
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+
+    avg_gain = gain.rolling(window=period).mean()
+    avg_loss = loss.rolling(window=period).mean()
+
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    last_rsi = rsi.iloc[-1] if not rsi.empty else None
+
+    return round(last_rsi, 2) if last_rsi else None

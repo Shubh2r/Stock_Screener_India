@@ -17,17 +17,25 @@ def calculate_rsi(series, period=14):
 
 def get_stock_data(ticker):
     score = 0
-    data = yf.download(ticker, period="1mo", interval="1d")
+    try:
+        data = yf.download(ticker, period="1mo", interval="1d", progress=False)
 
-    # Example scoring based on closing price movement
-    if not data.empty:
-        if data["Close"].iloc[-1] > data["Close"].iloc[0]:
-            score += 10
+        # Check if data is valid
+        if not data.empty and "Close" in data.columns and not data["Close"].isna().any():
+            # Price movement scoring
+            if data["Close"].iloc[-1] > data["Close"].iloc[0]:
+                score += 10
 
-        # RSI Calculation and scoring
-        rsi = calculate_rsi(data["Close"])
-        if rsi is not None and 30 < rsi < 70:
-            score += 20
+            # RSI scoring
+            rsi = calculate_rsi(data["Close"])
+            if rsi is not None and 30 < rsi < 70:
+                score += 20
+        else:
+            rsi = None  # In case data["Close"] is invalid
+
+    except Exception as e:
+        print(f"Error processing {ticker}: {e}")
+        rsi = None
 
     return {
         "ticker": ticker,

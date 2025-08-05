@@ -1,7 +1,7 @@
 name: 📈 Run Stock Screener
 
 on:
-  workflow_dispatch:     # Manual trigger via button
+  workflow_dispatch:
   schedule:
     - cron: '30 4 * * 1'  # Every Monday 10AM IST
 

@@ -36,6 +36,8 @@ def calculate_rsi(series, period=14):
 
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
-    last_rsi = rsi.iloc[-1] if not rsi.empty else None
 
-    return round(last_rsi, 2) if last_rsi else None
+    if not rsi.empty:
+        return round(rsi.iloc[-1], 2)
+    else:
+        return None

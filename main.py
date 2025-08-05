@@ -32,16 +32,13 @@ def main():
             results.append(stock)
 
     sorted_results = sorted(results, key=lambda x: x['score'], reverse=True)
-
-    # Ensure results folder exists
     os.makedirs("results", exist_ok=True)
-
-    # Write to markdown file
     filename = f"results/suggestions_{datetime.now().strftime('%Y%m%d_%H%M')}.md"
+
     with open(filename, "w", encoding="utf-8") as f:
         f.write(format_markdown(sorted_results))
 
-    print(f"✅ Results saved to: {filename}")
+    print(f"✅ Saved: {filename}")
 
 if __name__ == "__main__":
     main()

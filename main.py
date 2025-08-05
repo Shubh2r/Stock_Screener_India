@@ -1,5 +1,7 @@
 import pandas as pd
 from fetcher import get_stock_data
+import os
+from datetime import datetime
 
 MAX_SHARES = 50
 MIN_SHARES = 10
@@ -8,6 +10,15 @@ BUDGET_PER_STOCK = 500
 def suggest_quantity(price):
     qty = min(MAX_SHARES, max(MIN_SHARES, int(10000 / price)))
     return qty
+
+def format_markdown(results):
+    lines = []
+    lines.append(f"# 📊 Stock Suggestions — {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
+    lines.append("| Ticker | Price | Score | Qty | Total ₹ | Reason |")
+    lines.append("|--------|-------|-------|-----|---------|--------|")
+    for stock in results:
+        lines.append(f"| {stock['ticker']} | ₹{stock['price']} | {stock['score']} | {stock['buy_quantity']} | ₹{stock['total_cost']} | {stock['reason']} |")
+    return "\n".join(lines)
 
 def main():
     tickers_df = pd.read_csv("tickers.csv")
@@ -21,8 +32,16 @@ def main():
             results.append(stock)
 
     sorted_results = sorted(results, key=lambda x: x['score'], reverse=True)
-    for s in sorted_results:
-        print(s)
+
+    # Ensure results folder exists
+    os.makedirs("results", exist_ok=True)
+
+    # Write to markdown file
+    filename = f"results/suggestions_{datetime.now().strftime('%Y%m%d_%H%M')}.md"
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(format_markdown(sorted_results))
+
+    print(f"✅ Results saved to: {filename}")
 
 if __name__ == "__main__":
     main()
